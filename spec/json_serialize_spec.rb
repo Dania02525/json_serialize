@@ -28,6 +28,12 @@ describe JsonSerialize do
         Json.update_all(default_proc: nil)
         expect(object.reload.default_proc).to eql({})
       end
+
+      it 'should return hash with indifferent access' do
+        object = Json.create!(data: { foo: 'bar' })
+        expect(object.data[:foo]).to eq('bar')
+        expect(object.data['foo']).to eq('bar')
+      end
     end
 
     context "[setter]" do
