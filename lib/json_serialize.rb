@@ -27,21 +27,27 @@ module JsonSerialize
       fields_with_defaults.each do |field, default_value|
         define_method field do
           if instance_variable_defined?(field_ivar(field)) then
-            return instance_variable_get(field_ivar(field)).with_indifferent_access if instance_variable_get(field_ivar(field)).is_a? Hash
             instance_variable_get(field_ivar(field))
           else
             encoded = read_attribute(field)
             default = default_value.kind_of?(Proc) ? default_value.call : (default_value.duplicable? ? default_value.dup : default_value)
             decoded = encoded.nil? ? default : ActiveSupport::JSON.decode(encoded)
-            instance_variable_set field_ivar(field), decoded
-            return decoded.with_indifferent_access if decoded.is_a? Hash
-            decoded
+            if decoded.is_a? Hash
+              instance_variable_set field_ivar(field), decoded.with_indifferent_access
+            else
+              instance_variable_set field_ivar(field), decoded
+            end
+            instance_variable_get(field_ivar(field))
           end
         end
 
         define_method :"#{field}=" do |value|
           write_attribute field, (value.nil? ? nil : ActiveSupport::JSON.encode(value))
-          instance_variable_set field_ivar(field), value
+          if value.is_a? Hash
+            instance_variable_set field_ivar(field), value.with_indifferent_access
+          else
+            instance_variable_set field_ivar(field), value
+          end
         end
       end
 

@@ -53,7 +53,7 @@ describe JsonSerialize do
         object             = Json.create!(data: { foo: 'bar' })
         object.data[:foo2] = 'bar2'
         object.save!
-        expect(object.data).to eql(:foo => 'bar', :foo2 => 'bar2')
+        expect(object.data).to eql('foo' => 'bar', 'foo2' => 'bar2')
       end
 
       it "should clear the in-memory reference on reload" do
